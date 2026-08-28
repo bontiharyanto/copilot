@@ -74,6 +74,15 @@ The bot listens on port `3978` by default. The Bot Framework messaging endpoint 
 - `src/prompts/default/` — System prompt and `CreateTicket` action schema.
 - `docs/knowledge-base/` — Example SOP documents for SharePoint ingestion/testing.
 
+## Documentation
+
+- [Development Guidance](docs/guidance.md) — Development principles, workflow, and verification checklist.
+- [Operations Runbook](docs/operations.md) — Startup, health checks, troubleshooting, and recovery.
+- [High-Level Design](docs/HLD.md) — Architecture, integrations, deployment topology, and design decisions.
+- [Low-Level Design](docs/LLD.md) — Module behavior, request flows, state, errors, and test design.
+- [Configuration Guide](docs/configuration.md) — Environment variables, permissions, and endpoint setup.
+- [Architecture](docs/architecture.md) — Existing component and message-flow reference.
+
 ## Knowledge Management documents
 
 The example SOPs in `docs/knowledge-base/` are local source documents. Upload or synchronize

@@ -36,9 +36,21 @@ server.get('/health', (_request, response, next) => {
 });
 
 server.post('/api/messages', async (request, response) => {
-  await adapter.process(request, response as any, async (context) => {
-    await app.run(context);
-  });
+  console.log(
+    `[botRequest] Received ${request.body?.type ?? 'unknown'} activity`,
+  );
+
+  try {
+    await adapter.process(request, response as any, async (context) => {
+      await app.run(context);
+    });
+  } catch (error) {
+    console.error('[botRequest] Failed to process activity', error);
+
+    if (!response.headersSent) {
+      response.send(500, { error: 'Failed to process bot activity.' });
+    }
+  }
 });
 
 const port = Number(process.env.PORT ?? 3978);
