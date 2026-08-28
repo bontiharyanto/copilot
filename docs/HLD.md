@@ -30,39 +30,60 @@ workflow and is not a production service-management integration.
 
 ## 4. Logical architecture
 
-```text
-+----------------+       HTTPS        +----------------------+
-| Microsoft      | -----------------> | Restify +            |
-| Teams          |   /api/messages    | TeamsAdapter         |
-+----------------+                    +----------+-----------+
-                                               |
-                                               v
-                                      +----------------------+
-                                      | Teams AI Application |
-                                      | ActionPlanner        |
-                                      +----+-------------+---+
-                                           |             |
-                         search context    |             | action
-                                           v             v
-                                  +--------+----+  +-----+----------+
-                                  | GraphService |  | TicketService |
-                                  +--------+----+  +-----+----------+
-                                           |             |
-                                           v             v
-                                  +--------+----+  +-----+----------+
-                                  | MSAL +      |  | Mock ticket   |
-                                  | Graph API   |  | workflow      |
-                                  +--------+----+  +----------------+
-                                           |
-                                           v
-                                  +----------------+
-                                  | SharePoint KM  |
-                                  +----------------+
+The diagram below uses Mermaid, so it renders natively in GitHub and in Markdown viewers that
+support Mermaid.
 
-                                      +----------------+
-                                      | Groq/OpenAI    |
-                                      | compatible LLM |
-                                      +----------------+
+```mermaid
+flowchart LR
+    teams["Microsoft Teams"]
+
+    subgraph botRuntime["Bot runtime"]
+        restify["Restify HTTP server"]
+        adapter["TeamsAdapter"]
+        app["Teams AI Application - ActionPlanner"]
+        answerCard["Adaptive Card - answerCard.json"]
+        ticketCard["Adaptive Card - ticketSuccess.json"]
+    end
+
+    subgraph integrations["Integration services"]
+        graphService["GraphService"]
+        ticketService["TicketService"]
+        msal["MSAL client credentials"]
+    end
+
+    graphApi["Microsoft Graph - /search/query"]
+    sharePoint["SharePoint KM site"]
+    llm["Groq or OpenAI - compatible LLM"]
+    mockTicket["Mock ticket workflow"]
+
+    teams -->|"HTTPS POST /api/messages"| restify
+    restify --> adapter
+    adapter --> app
+    app -->|"search user question"| graphService
+    graphService --> msal
+    msal --> graphApi
+    graphApi -->|"SiteID filtered search"| sharePoint
+    sharePoint -->|"top 3 documents"| graphService
+    graphService -->|"grounding context"| app
+    app -->|"grounded prompt"| llm
+    llm -->|"answer"| answerCard
+    app -->|"CreateTicket action"| ticketService
+    ticketService --> mockTicket
+    mockTicket --> ticketCard
+    answerCard --> teams
+    ticketCard --> teams
+
+    classDef external fill:#E8F1FF,stroke:#2563EB,color:#172554
+    classDef runtime fill:#ECFDF5,stroke:#059669,color:#064E3B
+    classDef service fill:#FFF7ED,stroke:#EA580C,color:#7C2D12
+    classDef data fill:#F5F3FF,stroke:#7C3AED,color:#4C1D95
+    classDef ai fill:#FDF2F8,stroke:#DB2777,color:#831843
+
+    class teams,sharePoint,graphApi external
+    class restify,adapter,app,answerCard,ticketCard runtime
+    class graphService,ticketService,msal service
+    class mockTicket data
+    class llm ai
 ```
 
 ## 5. Main components
@@ -103,21 +124,53 @@ the extension point for a real Power Automate, ServiceNow, or Jira integration.
 
 ### Knowledge question
 
-1. Teams sends a message.
-2. The adapter authenticates the activity.
-3. `app.activity(ActivityTypes.Message)` reads the message text.
-4. `GraphService` searches the configured SharePoint site.
-5. Results are stored in turn state.
-6. The default prompt adds those results as authoritative context.
-7. The planner generates a grounded response.
-8. The response is rendered as `answerCard.json` with a citation URL.
+```mermaid
+sequenceDiagram
+    actor user as User
+    participant teams as Microsoft Teams
+    participant adapter as TeamsAdapter
+    participant app as Teams AI Application
+    participant graphService as GraphService
+    participant graphApi as Microsoft Graph
+    participant sharePoint as SharePoint KM
+    participant llm as Groq or OpenAI
+
+    user->>teams: Ask IT question
+    teams->>adapter: POST /api/messages
+    adapter->>adapter: Validate bot token
+    adapter->>app: Run authenticated activity
+    app->>graphService: searchKnowledgeBase(query)
+    graphService->>graphApi: POST /search/query
+    graphApi->>sharePoint: Search SiteID
+    sharePoint-->>graphApi: Search hits
+    graphApi-->>graphService: Top three documents
+    graphService-->>app: Titles, snippets, URLs
+    app->>llm: Generate with SharePoint context
+    llm-->>app: Grounded answer
+    app-->>teams: Answer Adaptive Card with citation
+    teams-->>user: Display answer
+```
 
 ### Ticket request
 
-1. The planner matches the `CreateTicket` action schema.
-2. It extracts the issue `description`.
-3. `ticketService.createTicket()` creates a mock ticket.
-4. The bot sends `ticketSuccess.json` with ID, status, and URL.
+```mermaid
+sequenceDiagram
+    actor user as User
+    participant teams as Microsoft Teams
+    participant app as Teams AI Application
+    participant ticketService as TicketService
+    participant mockTicket as Mock ticket workflow
+
+    user->>teams: Report issue or request ticket
+    teams->>app: Authenticated message activity
+    app->>app: Match CreateTicket and extract description
+    app->>ticketService: createTicket(description)
+    ticketService->>mockTicket: Generate mock ID and URL
+    mockTicket-->>ticketService: Ticket details
+    ticketService-->>app: Ticket ID, status, URL
+    app-->>teams: Ticket success Adaptive Card
+    teams-->>user: Display confirmation
+```
 
 ## 7. Trust boundaries
 

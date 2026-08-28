@@ -44,18 +44,44 @@ The JSON files define the Adaptive Card layouts. `cardHelper.ts` clones each tem
 
 ## Message flow
 
-```text
-Teams
-  -> POST /api/messages
-  -> TeamsAdapter
-  -> Application.run()
-  -> app.activity(Message)
-  -> GraphService.searchKnowledgeBase()
-  -> SharePoint context added to prompt
-  -> ActionPlanner
-       -> grounded answer -> answerCard
-       -> CreateTicket -> ticketService -> ticketSuccess card
-  -> Teams
+```mermaid
+flowchart TD
+    teams["Microsoft Teams"]
+    endpoint["POST /api/messages"]
+    adapter["TeamsAdapter"]
+    application["Application.run(context)"]
+    messageHandler["Message activity handler"]
+    graphService["GraphService.searchKnowledgeBase()"]
+    context["SharePoint context"]
+    planner["ActionPlanner"]
+    answer["Grounded answer - answerCard"]
+    action["CreateTicket action"]
+    ticket["ticketService"]
+    ticketCard["ticketSuccess card"]
+
+    teams --> endpoint
+    endpoint --> adapter
+    adapter --> application
+    application --> messageHandler
+    messageHandler --> graphService
+    graphService --> context
+    context --> planner
+    planner --> answer
+    planner --> action
+    action --> ticket
+    ticket --> ticketCard
+    answer --> teams
+    ticketCard --> teams
+
+    classDef entry fill:#E8F1FF,stroke:#2563EB,color:#172554
+    classDef runtime fill:#ECFDF5,stroke:#059669,color:#064E3B
+    classDef service fill:#FFF7ED,stroke:#EA580C,color:#7C2D12
+    classDef output fill:#FDF2F8,stroke:#DB2777,color:#831843
+
+    class teams,endpoint entry
+    class adapter,application,messageHandler,planner runtime
+    class graphService,context,ticket service
+    class answer,ticketCard output
 ```
 
 ## Grounding behavior

@@ -2,22 +2,32 @@
 
 ## 1. Runtime and module layout
 
-```text
-src/
-  index.ts                    HTTP server and Teams adapter
-  app.ts                      AI application and activity/action handlers
-  services/
-    graphService.ts           MSAL authentication and Graph Search
-    ticketService.ts          Mock ticket creation
-  cards/
-    answerCard.json           Grounded answer card template
-    ticketSuccess.json        Ticket confirmation card template
-  prompts/default/
-    config.json               Prompt completion and augmentation settings
-    skprompt.txt              System prompt and grounding rules
-    actions.json              CreateTicket action schema
-  utils/
-    cardHelper.ts             Adaptive Card placeholder population
+```mermaid
+flowchart LR
+    index["src/index.ts - HTTP server and TeamsAdapter"]
+    app["src/app.ts - AI application and handlers"]
+    graph["services/graphService.ts - MSAL and Graph Search"]
+    ticket["services/ticketService.ts - Mock ticket creation"]
+    cards["cards/*.json - Adaptive Card templates"]
+    helper["utils/cardHelper.ts - Template population"]
+    prompt["prompts/default/* - Prompt and action schema"]
+
+    index --> app
+    app --> graph
+    app --> ticket
+    app --> prompt
+    app --> helper
+    helper --> cards
+
+    classDef entry fill:#E8F1FF,stroke:#2563EB,color:#172554
+    classDef core fill:#ECFDF5,stroke:#059669,color:#064E3B
+    classDef service fill:#FFF7ED,stroke:#EA580C,color:#7C2D12
+    classDef resource fill:#F5F3FF,stroke:#7C3AED,color:#4C1D95
+
+    class index entry
+    class app core
+    class graph,ticket service
+    class cards,helper,prompt resource
 ```
 
 ## 2. Startup sequence
