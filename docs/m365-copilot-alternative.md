@@ -38,14 +38,14 @@ Adding the Copilot channel therefore does not remove the current model API requi
 flowchart LR
     teams["Microsoft Teams"]
     bot["Node.js Teams bot"]
-    graph["GraphService"]
+    graphService["GraphService"]
     sharePoint["SharePoint KM"]
     model["Groq or OpenAI"]
     cards["Adaptive Cards"]
 
     teams --> bot
-    bot --> graph
-    graph --> sharePoint
+    bot --> graphService
+    graphService --> sharePoint
     sharePoint -->|"retrieved snippets"| bot
     bot --> model
     model --> cards
@@ -58,7 +58,7 @@ flowchart LR
 
     class teams channel
     class bot,cards runtime
-    class graph,sharePoint data
+    class graphService,sharePoint data
     class model model
 ```
 

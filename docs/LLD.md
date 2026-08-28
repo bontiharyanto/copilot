@@ -6,14 +6,14 @@
 flowchart LR
     index["src/index.ts - HTTP server and TeamsAdapter"]
     app["src/app.ts - AI application and handlers"]
-    graph["services/graphService.ts - MSAL and Graph Search"]
+    graphService["services/graphService.ts - MSAL and Graph Search"]
     ticket["services/ticketService.ts - Mock ticket creation"]
     cards["cards/*.json - Adaptive Card templates"]
     helper["utils/cardHelper.ts - Template population"]
     prompt["prompts/default/* - Prompt and action schema"]
 
     index --> app
-    app --> graph
+    app --> graphService
     app --> ticket
     app --> prompt
     app --> helper
@@ -26,7 +26,7 @@ flowchart LR
 
     class index entry
     class app core
-    class graph,ticket service
+    class graphService,ticket service
     class cards,helper,prompt resource
 ```
 
