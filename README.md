@@ -19,7 +19,7 @@ workflow.
 - Node.js 20 or later.
 - A Microsoft Entra app registration with Microsoft Graph application permission
   `Sites.Read.All` and administrator consent.
-- An OpenAI API key.
+- An OpenAI or Groq API key.
 - A Teams/Bot Framework app registration for production or Teams testing.
 
 ## Local setup

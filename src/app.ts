@@ -25,17 +25,24 @@ import {
 
 config({ path: path.resolve(process.cwd(), '.env.local') });
 
+const groqApiKey = process.env.GROQ_API_KEY;
 const openAiApiKey = process.env.OPENAI_API_KEY;
+const llmApiKey = groqApiKey ?? openAiApiKey;
 
-if (!openAiApiKey) {
+if (!llmApiKey) {
   throw new Error(
-    'Missing OPENAI_API_KEY. Set it in your environment before starting the bot.',
+    'Missing GROQ_API_KEY or OPENAI_API_KEY. Set one in your environment before starting the bot.',
   );
 }
 
 const model = new OpenAIModel({
-  apiKey: openAiApiKey,
-  defaultModel: process.env.OPENAI_MODEL ?? 'gpt-4o-mini',
+  apiKey: llmApiKey,
+  defaultModel:
+    (groqApiKey ? process.env.GROQ_MODEL : process.env.OPENAI_MODEL) ??
+    (groqApiKey ? 'openai/gpt-oss-120b' : 'gpt-4o-mini'),
+  endpoint: groqApiKey
+    ? 'https://api.groq.com/openai/v1'
+    : process.env.OPENAI_BASE_URL,
   useSystemMessages: true,
 });
 

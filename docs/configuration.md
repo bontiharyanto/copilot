@@ -3,10 +3,20 @@
 Copy `.env.example` to `.env.local` and replace every placeholder before starting the bot.
 `.env.local` is ignored by Git.
 
-## OpenAI
+## AI provider
+
+The bot supports OpenAI-compatible endpoints. To use Groq, set `GROQ_API_KEY`; it takes
+precedence over `OPENAI_API_KEY`.
 
 - `OPENAI_API_KEY` — API key used by `OpenAIModel`.
 - `OPENAI_MODEL` — Chat model name. Defaults to `gpt-4o-mini`.
+- `GROQ_API_KEY` — Groq API key.
+- `GROQ_MODEL` — Groq model name. Defaults to `openai/gpt-oss-120b`.
+- `OPENAI_BASE_URL` — Optional custom OpenAI-compatible endpoint.
+
+For Groq, the application automatically uses
+`https://api.groq.com/openai/v1`. Do not set `OPENAI_BASE_URL` unless using another
+OpenAI-compatible provider.
 
 ## Teams and Bot Framework
 
@@ -46,6 +56,6 @@ Ticket creation is simulated locally. No webhook request is made until
 
 ## Configuration checks
 
-The application fails fast when `OPENAI_API_KEY` is missing. `GraphService` validates the Graph
-and SharePoint variables when it is constructed. This prevents the bot from running with
-incomplete AI or retrieval configuration.
+The application fails fast when both `GROQ_API_KEY` and `OPENAI_API_KEY` are missing.
+`GraphService` validates the Graph and SharePoint variables when it is constructed. This
+prevents the bot from running with incomplete AI or retrieval configuration.
