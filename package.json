@@ -1,0 +1,32 @@
+{
+  "name": "copilttrain",
+  "version": "1.0.0",
+  "description": "Microsoft Teams Helpdesk AI Bot",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "microsoft-teams",
+    "bot",
+    "typescript"
+  ],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "dependencies": {
+    "@microsoft/teams-ai": "^1.7.4",
+    "botbuilder": "^4.23.3",
+    "dotenv": "^17.4.2",
+    "restify": "^12.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.4.0",
+    "@types/restify": "^8.5.12",
+    "tsx": "^4.23.12",
+    "typescript": "^7.0.2"
+  }
+}

@@ -1,0 +1,84 @@
+# Comprehensive Cursor Rules for Microsoft 365 Helpdesk AI Bot
+
+## Project Overview
+You are building an Enterprise IT Helpdesk AI Bot integrated directly into Microsoft Teams. The bot acts as a Co-Pilot that searches internal Knowledge Management (KM) documents stored in SharePoint, and can trigger automated actions like creating support tickets.
+
+## Tech Stack
+- **Platform:** Microsoft Teams (Bot Framework)
+- **Framework:** Teams Toolkit, Teams AI Library (`@microsoft/teams-ai`)
+- **Language:** Node.js, TypeScript
+- **Knowledge Retrieval (RAG):** Microsoft Graph API (`@microsoft/microsoft-graph-client`) targeting SharePoint Search (`/search/query`).
+- **Ticketing / Automation:** Webhooks / HTTP triggers to Power Automate or direct integrations (ServiceNow/Jira).
+- **UI/UX:** Adaptive Cards (JSON format). DO NOT use HTML/CSS or React components for the bot interface.
+
+## Directory Structure & Responsibilities
+- `src/app.ts`: Main entry point initializing the Teams AI `Application` and defining prompt templates.
+- `src/services/graphService.ts`: Handles authentication and querying the Graph API for SharePoint documents.
+- `src/services/ticketService.ts`: Handles triggering the ticketing workflow (e.g., calling a Power Automate webhook).
+- `src/cards/`: Stores all `.json` files for Adaptive Cards (e.g., `answerCard.json`, `ticketSuccessCard.json`).
+- `src/prompts/`: Stores the system prompts for the Teams AI Library.
+
+## Rule 1: RAG (Retrieval-Augmented Generation) via SharePoint
+1. **No External Vector DBs:** Do not use Pinecone, Chroma, or LangChain. Microsoft Graph acts as our search engine (Semantic Index).
+2. **Retrieval Flow:** When a user asks a factual question, the bot must call `graphService.ts` to search the specific SharePoint site containing the SOPs.
+3. **Context Injection:** Extract the `hitHighlights` or `summary` from the Graph API response and inject it into the Teams AI prompt context.
+4. **Strict Grounding:** The system prompt MUST instruct the LLM: "Answer strictly based on the provided SharePoint context. If the answer is not there, politely state you do not know."
+
+## Rule 2: Ticketing Action (Intent Recognition)
+1. **Intent Detection:** Configure the Teams AI Library to detect actions (intents) like "CreateTicket".
+2. **Entity Extraction:** If the "CreateTicket" intent is triggered, ensure the AI asks for missing required entities (e.g., "Issue Description", "Asset ID") before proceeding.
+3. **Execution:** Once data is collected, call `ticketService.ts` to execute the action, then return a confirmation to the user.
+
+## Rule 3: UI/UX (Adaptive Cards)
+1. **Format:** All rich responses must be formatted as Adaptive Cards.
+2. **Citations:** When answering a KM question, the Adaptive Card MUST include a button or link pointing to the original SharePoint document URL (Citation).
+3. **Ticketing Success:** When a ticket is created, return an Adaptive Card showing the Ticket ID, Status, and a link to view the ticket.
+
+## Rule 4: Localization & Tone
+- The bot must be bilingual (Indonesian and English). Instruct the LLM in the system prompt to detect the user's language and respond in the same language.
+- Maintain a highly professional, empathetic, and clear corporate tone. Comprehensive Cursor Rules for Helpdesk AI Co-Pilot Demo
+
+## Project Overview
+You are building a RAG-based AI Helpdesk Co-pilot. The AI acts as a knowledgeable assistant for IT/Support agents. It must answer queries based STRICTLY on the internal Knowledge Management (KM) repository.
+
+## Tech Stack
+- **Framework:** Next.js 14+ (App Router)
+- **Language:** TypeScript
+- **Styling & UI:** Tailwind CSS, shadcn/ui, Lucide Icons
+- **AI/LLM Core:** Vercel AI SDK (`ai`, `@ai-sdk/openai`)
+- **RAG Orchestration:** LangChain (`@langchain/core`, `@langchain/openai`, `@langchain/pinecone`, `@langchain/textsplitters`)
+- **Vector Database:** Pinecone
+- **Embedding Model:** OpenAI `text-embedding-3-small`
+- **LLM:** OpenAI `gpt-4o-mini`
+
+## Architecture & Directory Structure Guidance
+1. **`/scripts/ingest.ts`:** Standalone script for document processing.
+2. **`/app/api/chat/route.ts`:** The main Vercel AI SDK route that handles Retrieval and LLM Generation.
+3. **`/app/page.tsx`:** The frontend Chat UI.
+
+## Phase 1: Data Ingestion Rules (Chunking & Embedding)
+When writing ingestion scripts to populate the Vector DB, you must follow these rules:
+- **Text Splitting:** ALWAYS use `RecursiveCharacterTextSplitter`.
+- **Parameters:** Use `chunkSize: 1000` and `chunkOverlap: 200` to maintain context.
+- **Metadata:** Every chunk MUST have metadata attached (e.g., `source` file name, `category`). This is non-negotiable for citations.
+- **Storage:** Use `PineconeStore.fromDocuments` to embed and upload chunks to Pinecone in a single step.
+
+## Phase 2: RAG Retrieval & Generation Rules (API Route)
+When writing the `/api/chat/route.ts`, follow these strict RAG guardrails:
+1. **User Query Embedding:** Convert the latest user message into a vector using `text-embedding-3-small`.
+2. **Similarity Search:** Query the Pinecone index to retrieve the top 4 most relevant chunks.
+3. **Context Injection:** Format the retrieved chunks into a clear string and inject it into the LLM's `system` prompt.
+4. **Strict Grounding (Anti-Hallucination):** Add this instruction to the system prompt: 
+   "You are a Helpdesk Assistant. Answer the user's question ONLY using the provided Context. If the answer is not contained in the Context, you MUST say: 'Maaf, saya tidak menemukan informasi tersebut di repositori Knowledge Management.' Do NOT invent answers."
+5. **Citations:** The LLM MUST cite its sources based on the chunk metadata. Append the `source` name at the end of the answer (e.g., "Sumber: SOP-IT-003.pdf").
+
+## Phase 3: UI/UX Chat Guidelines (Frontend)
+- **Chat Interface:** Build a clean, ChatGPT-like interface using `useChat` from Vercel AI SDK.
+- **Loading States:** Implement a clear visual indicator (e.g., "Mencari di dokumen Helpdesk...") when the API is fetching context from Pinecone.
+- **Markdown Support:** Ensure the chat messages can render Markdown (bullet points, bold text) properly using a library like `react-markdown`.
+- **Source Chips:** Style the citations/sources nicely at the bottom of the AI's response using shadcn/ui `Badge` or similar components.
+
+## Coding Standards
+- Write clean, modular TypeScript code with proper type definitions.
+- Load all API keys (`PINECONE_API_KEY`, `OPENAI_API_KEY`) securely from `.env.local`.
+- Handle API errors gracefully and display them to the user.
