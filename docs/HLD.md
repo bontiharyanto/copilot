@@ -211,3 +211,14 @@ logging, health monitoring, and controlled secret rotation.
 - **Scalability:** In-memory state and process-local configuration currently limit horizontal scale.
 - **Content quality:** Answers depend on SharePoint indexing, document quality, and search relevance.
 - **Lifecycle:** `@microsoft/teams-ai` v1 is deprecated and should be migrated when practical.
+
+## 11. Alternative platform architecture
+
+The solution can be migrated to a Microsoft 365 Copilot Declarative Agent when the organization
+prefers Microsoft-managed model orchestration, SharePoint knowledge configuration, and Power
+Automate actions. This removes the need for Groq/OpenAI keys in the agent runtime but changes the
+custom bot, Graph retrieval, and Adaptive Card implementation.
+
+See [Microsoft 365 Copilot Alternative](m365-copilot-alternative.md) for the comparison,
+decision guidance, and migration outline. A Custom Engine Agent can expose the existing bot
+through Microsoft 365 Copilot, but it still uses the application's selected model provider.

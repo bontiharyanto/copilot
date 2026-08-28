@@ -81,6 +81,8 @@ The bot listens on port `3978` by default. The Bot Framework messaging endpoint 
 - [High-Level Design](docs/HLD.md) — Architecture, integrations, deployment topology, and design decisions.
 - [Low-Level Design](docs/LLD.md) — Module behavior, request flows, state, errors, and test design.
 - [Configuration Guide](docs/configuration.md) — Environment variables, permissions, and endpoint setup.
+- [Microsoft 365 Copilot Alternative](docs/m365-copilot-alternative.md) — Native Copilot option and
+  benefit comparison.
 - [Architecture](docs/architecture.md) — Existing component and message-flow reference.
 
 ## Knowledge Management documents
