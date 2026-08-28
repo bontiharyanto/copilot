@@ -1,0 +1,16 @@
+[
+  {
+    "name": "CreateTicket",
+    "description": "Create a support ticket when the user reports an IT issue or explicitly asks to open a ticket.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "A concise description of the user's IT issue, including relevant symptoms and impact."
+        }
+      },
+      "required": ["description"]
+    }
+  }
+]

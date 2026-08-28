@@ -15,6 +15,6 @@
     "frequency_penalty": 0
   },
   "augmentation": {
-    "augmentation_type": "none"
+    "augmentation_type": "sequence"
   }
 }

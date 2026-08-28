@@ -17,7 +17,11 @@ import {
   GraphService,
   KnowledgeBaseDocument,
 } from './services/graphService';
-import { createAnswerCard } from './utils/cardHelper';
+import { createTicket } from './services/ticketService';
+import {
+  createAnswerCard,
+  createTicketSuccessCard,
+} from './utils/cardHelper';
 
 config({ path: path.resolve(process.cwd(), '.env.local') });
 
@@ -120,6 +124,42 @@ app.ai.action<PredictedSayCommand>(
     });
 
     return '';
+  },
+);
+
+interface CreateTicketParameters {
+  description?: string;
+}
+
+app.ai.action<CreateTicketParameters>(
+  'CreateTicket',
+  async (context, _state, parameters) => {
+    const description = parameters.description?.trim();
+
+    if (!description) {
+      await context.sendActivity(
+        'Please provide a description of the IT issue so I can create the ticket.',
+      );
+      return AI.StopCommandName;
+    }
+
+    const ticket = await createTicket(description);
+
+    await context.sendActivity({
+      attachments: [
+        {
+          contentType: 'application/vnd.microsoft.card.adaptive',
+          content: createTicketSuccessCard({
+            successMessage: 'Support ticket created successfully',
+            ticketId: ticket.ticketId,
+            status: ticket.status,
+            ticketUrl: ticket.ticketUrl,
+          }),
+        },
+      ],
+    });
+
+    return AI.StopCommandName;
   },
 );
 

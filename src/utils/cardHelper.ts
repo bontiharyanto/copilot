@@ -15,6 +15,7 @@ export interface AnswerCardData {
 export interface TicketSuccessCardData {
   successMessage: string;
   ticketId: string;
+  status: string;
   ticketUrl: string;
 }
 

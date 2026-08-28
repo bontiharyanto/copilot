@@ -23,6 +23,12 @@
       "wrap": true,
       "spacing": "Medium",
       "weight": "Bolder"
+    },
+    {
+      "type": "TextBlock",
+      "text": "Status: ${status}",
+      "wrap": true,
+      "spacing": "Small"
     }
   ],
   "actions": [
